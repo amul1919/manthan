@@ -1,14 +1,15 @@
-
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-import openai
+from openai import OpenAI
 import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client with your API key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
+# Enable CORS so frontend can access this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,21 +17,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Pydantic model for input
 class Prompt(BaseModel):
     prompt: str
 
+# POST endpoint for deep research
 @app.post("/api/research")
 async def research(data: Prompt):
     try:
-        system_message = {
-            "role": "system",
-            "content": "You are an expert researcher. Provide a deep, detailed, and well-referenced explanation of the user's question using accurate and updated information."
-        }
-        user_message = {"role": "user", "content": data.prompt}
-
-        response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
-            messages=[system_message, user_message],
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert researcher. Provide a deep, detailed, and well-referenced explanation of the user's question using accurate and updated information."
+                },
+                {
+                    "role": "user",
+                    "content": data.prompt
+                }
+            ],
             max_tokens=2000,
             temperature=0.7
         )
