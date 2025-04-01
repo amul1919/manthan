@@ -1,2 +1,2 @@
-# Manthan AI Backend
-FastAPI backend for the Manthan AI web app.
+# Manthan AI Frontend
+React frontend for the Manthan AI web app.
