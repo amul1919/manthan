@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 import os
 
-# Initialize OpenAI client with your API key
+# Initialize OpenAI client with API key from environment
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
-# Enable CORS so frontend can access this API
+# Allow frontend to access backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,20 +17,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pydantic model for input
+# Define request format
 class Prompt(BaseModel):
     prompt: str
 
-# POST endpoint for deep research
+# Deep research endpoint
 @app.post("/api/research")
 async def research(data: Prompt):
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4-1106-preview",  # ✅ Updated model name
             messages=[
                 {
                     "role": "system",
-                    "content": "You are an expert researcher. Provide a deep, detailed, and well-referenced explanation of the user's question using accurate and updated information."
+                    "content": "You are an expert researcher. Provide a deep, well-referenced and comprehensive explanation of the user's question."
                 },
                 {
                     "role": "user",
@@ -40,8 +40,7 @@ async def research(data: Prompt):
             max_tokens=2000,
             temperature=0.7
         )
-        result_text = response.choices[0].message.content
-        return {"result": result_text}
+        return {"result": response.choices[0].message.content}
 
     except Exception as e:
         return {"result": f"Error: {str(e)}"}
