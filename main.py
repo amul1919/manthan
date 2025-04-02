@@ -26,7 +26,7 @@ class Prompt(BaseModel):
 async def research(data: Prompt):
     try:
         response = client.chat.completions.create(
-            model="gpt-4-1106-preview",  # ✅ Updated model name
+            model="gpt-3.5-turbo",  # ✅ Updated model name
             messages=[
                 {
                     "role": "system",
